@@ -1,0 +1,13 @@
+__pycache__/
+uploads/
+logs/
+models/
+notebooks/
+
+*.pyc
+.env
+.env.*
+.DS_Store
+*.pkl
+*.joblib
+todo.txt
