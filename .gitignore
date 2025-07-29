@@ -3,6 +3,7 @@ uploads/
 logs/
 models/
 notebooks/
+.conda/
 
 *.pyc
 .env
@@ -11,3 +12,4 @@ notebooks/
 *.pkl
 *.joblib
 todo.txt
+*.example
