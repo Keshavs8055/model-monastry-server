@@ -3,8 +3,10 @@ import pandas as pd
 from flask import request
 from werkzeug.utils import secure_filename
 
-from api.constants import returnError, returnSuccess
-from api.constants import returnError
+from api.utils.responses import returnError, returnSuccess
+from api.utils.responses import returnError
+
+from api.utils.auth_decorator import token_required
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'csv'}
@@ -13,6 +15,7 @@ MAX_FILE_SIZE_MB = 5
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+@token_required
 def upload_file():
     if 'file' not in request.files:
         return returnError('No file part in request')

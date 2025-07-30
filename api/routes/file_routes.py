@@ -1,5 +1,5 @@
 from flask import Blueprint
-from api.controllers.file_controller import upload_file, configure_model
+from api.controllers.file_controller import upload_file
 
 file_bp = Blueprint('file_bp', __name__)
 
