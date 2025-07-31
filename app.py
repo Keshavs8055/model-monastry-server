@@ -1,16 +1,5 @@
-from flask import Flask
-from flask_cors import CORS
-from config import Config
-from api.db.mongo import init_app
-from api.utils.register import registerBlueprints
-
-app = Flask(__name__)
-app.config.from_object(Config)
-
-CORS(app)
-init_app(app)
-registerBlueprints(app)
-
+from flask_app import create_app
+app = create_app()
 
 @app.route('/health')
 def health_check():

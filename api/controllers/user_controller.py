@@ -6,7 +6,12 @@ from api.db.mongo import mongo
 
 bcrypt = Bcrypt()
 
-def register_user(email, password, username):
+def register_user():
+    data = request.get_json()
+    email = data.get("email")
+    password = data.get("password")
+    username = data.get("username")
+    
     if not email or not password or not username:
         return returnError("Email, password, and username are required.", status_code=401)
     
