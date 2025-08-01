@@ -7,6 +7,8 @@ from api.utils.responses import returnError, returnSuccess
 from api.utils.responses import returnError
 
 from api.utils.auth_decorator import token_required
+from flask_jwt_extended import get_jwt_identity
+from api.db.mongo import mongo
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'csv'}
@@ -29,7 +31,8 @@ def upload_file():
 
     if file.content_length and file.content_length > MAX_FILE_SIZE_MB * 1024 * 1024:
         return returnError(f'Max file size is {MAX_FILE_SIZE_MB} MB')
-
+    user_id = get_jwt_identity()
+    
     # Safe filename and path
     filename = secure_filename(file.filename)
     save_path = os.path.join(UPLOAD_FOLDER, filename)
@@ -37,7 +40,7 @@ def upload_file():
     # Ensure uploads dir exists
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     file.save(save_path)
-
+    
     try:
         df = pd.read_csv(save_path, nrows=5) 
         if df.empty or len(df.columns) < 2:
@@ -46,6 +49,16 @@ def upload_file():
     except Exception as e:
         os.remove(save_path)
         return returnError('Invalid CSV file')
+    
+    mongo.db.user_files.insert_one({
+        "user_id": user_id,
+        "filename": filename,
+        "upload_time": pd.Timestamp.now(),
+        "config": None,
+        "preprocessed_preview": None,
+        "path":  save_path
+        })
+    
 
     return returnSuccess('File uploaded and verified', data={'filename': filename})
 

@@ -12,6 +12,8 @@ def create_app():
     app.config.from_object(Config)
     CORS(app)
     init_app(app)
+    
+    
     app.register_blueprint(file_bp, url_prefix='/api/file')
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
 
