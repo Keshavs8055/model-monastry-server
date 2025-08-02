@@ -1,19 +1,34 @@
-from flask import request
+from functools import wraps
+from bson import ObjectId
+from flask import request, Response
+from flask import g
+from typing import Callable, Any, TypeVar, cast
+from api.db.collections import get_users_collection
 from api.utils.responses import returnError
 from api.utils.jwt import decode_token
+from typing import Union, Tuple
 
-def token_required(func):
-    def wrapper(*args, **kwargs):
-        auth_header = request.headers.get("Authorization")
-        if not auth_header or not auth_header.startswith("Bearer "):
-            return returnError("Missing or invalid auth token", 401)
+F = TypeVar("F", bound=Callable[..., Any])
 
-        token = auth_header.split(" ")[1]
-        payload = decode_token(token)
-        if not payload:
-            return returnError("Invalid or expired token", 401)
+def token_required(func: F) -> F:
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any) -> Union[Response, Tuple[Response, int]]:
+        auth_header: str | None = request.headers.get("Authorization")
+        if not auth_header or not auth_header.startswith('Bearer'):
+            return returnError("Invalid Token passed", 401)
+        
+        user_id = decode_token(auth_header)  # decode_token already returns Response on error
 
-        request.user_id = payload["user_id"]
+        if not isinstance(user_id, str):  # decode_token returned an error Response
+            return user_id  # Return the error response tuple directly
+
+        print(user_id)
+        
+        g.user = get_users_collection().find_one({"_id": ObjectId(user_id)})
+        
+        if not g.user:
+            return returnError("User not found", 404)
+        
         return func(*args, **kwargs)
-    wrapper.__name__ = func.__name__
-    return wrapper
+    
+    return cast(F, wrapper)

@@ -2,28 +2,26 @@ import os
 import pandas as pd
 from flask import request
 from werkzeug.utils import secure_filename
+from flask import g
 
 from api.utils.responses import returnError, returnSuccess
 from api.utils.responses import returnError
 
-from api.utils.auth_decorator import token_required
-from flask_jwt_extended import get_jwt_identity
-from api.db.mongo import mongo
+from api.db.collections import get_user_files_collection
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'csv'}
 MAX_FILE_SIZE_MB = 5
 
-def allowed_file(filename):
+def allowed_file(filename: str):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@token_required
 def upload_file():
     if 'file' not in request.files:
         return returnError('No file part in request')
 
     file = request.files['file']
-    if file.filename == '':
+    if file.filename == '' or not file.filename:
         return returnError('No selected file')
 
     if not allowed_file(file.filename):
@@ -31,7 +29,8 @@ def upload_file():
 
     if file.content_length and file.content_length > MAX_FILE_SIZE_MB * 1024 * 1024:
         return returnError(f'Max file size is {MAX_FILE_SIZE_MB} MB')
-    user_id = get_jwt_identity()
+    
+    print(g.user)
     
     # Safe filename and path
     filename = secure_filename(file.filename)
@@ -50,8 +49,8 @@ def upload_file():
         os.remove(save_path)
         return returnError('Invalid CSV file')
     
-    mongo.db.user_files.insert_one({
-        "user_id": user_id,
+    get_user_files_collection().insert_one({
+        "user_id": g.user['_id'],
         "filename": filename,
         "upload_time": pd.Timestamp.now(),
         "config": None,
