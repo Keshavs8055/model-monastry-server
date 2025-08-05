@@ -1,5 +1,5 @@
 from flask import Flask
-from config import Config
+from app_config import Config
 from flask_cors import CORS
 from api.db.mongo import init_app
 from api.routes.user_routes import auth_bp

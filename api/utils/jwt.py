@@ -1,7 +1,7 @@
 import jwt
 from datetime import datetime, timedelta
 from typing import Union, Dict, Any
-from config import SECRET_KEY, JWT_EXPIRY_SECONDS
+from app_config import SECRET_KEY, JWT_EXPIRY_SECONDS
 from api.utils.responses import returnError
 
 if not isinstance(SECRET_KEY, str) or not SECRET_KEY:
