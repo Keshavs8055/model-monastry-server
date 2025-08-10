@@ -7,6 +7,23 @@ from config.logger import setup_logger
 
 logger = setup_logger(__name__)
 
+# TODO: Define the expected structure of the preprocessing config
+# Example structure:
+# {
+#   "drop_columns": ["user_id", "session_id"],
+#   "rename_columns": { "old_name": "new_name" },
+#   "fill_na": { "age": 0, "gender": "unknown" },
+#   "normalize_columns": ["income", "expenses"],
+#   "encode_columns": ["gender"],
+#   "log_transform": ["sales"],
+#   "cast_types": { "age": "int", "income": "float" },
+#   "remove_duplicates": true,
+#   "shuffle": true,
+#   "split_ratio": { "train": 0.8, "test": 0.2 },
+#   "target_column": "churn"
+# }
+
+
 def preprocess_file():
     user_id = g.user['_id']
     logger.info(f"Starting preprocessing for user_id: {user_id}")
